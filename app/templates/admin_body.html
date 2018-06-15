@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Режим редактирования</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=4200, initial-scale=1">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'css/skill_map.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://unpkg.com/json5@^1.0.0"></script>
+</head>
+<body onload="init()">
+    <svg id="levelContainer" style="width: 100%; height: 100%; position: absolute; z-index: -1;"></svg>
+    <form id="data_from_server">
+        <input type="hidden" value={{it_amount}}>
+        <ul style="list-style-type: none">
+            {% for elem in queue %}
+            <li><input class="hidden" type="hidden" value='{{elem}}'></li>
+            {% endfor %}
+            <li><input id="imgFromServer" type="hidden" value="{{img}}">
+        </ul>
+    </form>
+    <!-- ADDSKILL MODAL -->
+    <div id="addSkillDialog" class="w3-modal">
+        <div class="w3-modal-content">
+            <header class="w3-container w3-teal">
+                    <span onclick="document.getElementById('addSkillDialog').style.display='none'"
+                          id="close" class="w3-button w3-display-topright">&times;</span>
+                <h2>Добавить элемент</h2>
+            </header>
+            <div class="w3-container">
+                <form class="w3-container">
+                    <div class="w3-section">
+                        <label><b>Элемент</b></label>
+                        <input class="w3-input w3-border w3-margin-bottom" type="text" placeholder="Добавить навык"
+                               name="skill" required>
+                    </div>
+                </form>
+            </div>
+            <footer class="w3-container w3-teal">
+                <button id="submit" class="w3-button w3-block w3-green w3-section w3-padding" type="submit"
+                        onclick="addSkill()">Добавить
+                </button>
+            </footer>
+        </div>
+    </div>
+
+    <!--ESTABLISH CONNECTIONS-->
+    <div id="setConnections" class="w3-modal">
+        <div class="w3-modal-content">
+            <header class="w3-container w3-teal">
+                    <span onclick="document.getElementById('setConnections').style.display='none'"
+                          class="w3-button w3-display-topright">&times;</span>
+                <h2>Выберите действие</h2>
+            </header>
+            <div class="w3-container">
+                <form class="w3-container">
+                    <div class="w3-section">
+                        <div class='w3-bar w3-row'>
+                            <div class='w3-col s4 m4 l4 w3-bar-item w3-button w3-khaki w3-tiny'
+                                 onclick="addImage()"> Добавить фоновую картинку
+                            </div>
+                            <div class='w3-col s3 m3 l3  w3-bar-item w3-button w3-khaki w3-tiny'
+                                onclick="delImage()">
+                                Удалить фоновую картинку
+                            </div>
+                            <div class='w3-col s4 m4 l4 w3-bar-item w3-button w3-blue w3-tiny'
+                                 onclick="setParent()" title=''> Указать связь с элементом
+                            </div>
+                            <div class='w3-col s4 m4 l4 w3-bar-item w3-button w3-teal w3-tiny'
+                                 onclick="addChild()" title='добавить связь'> Добавить элемент
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL, отвечающий за ввод текста для setChild&setPaternt-->
+    <div id="textInput" class="w3-modal">
+        <div class="w3-modal-content">
+            <header class="w3-container w3-teal">
+                    <span onclick="document.getElementById('textInput').style.display='none'"
+                          class="w3-button w3-display-topright">&times;</span>
+                <h2>Введите название элемента</h2>
+            </header>
+            <div class="w3-container">
+                <form class="w3-container">
+                    <div class="w3-section">
+                        <label><b>Название элемента</b></label>
+                        <input class="w3-input w3-border w3-margin-bottom" id='tmpSkill' type="text"
+                               placeholder="Название элемента" name="usrname" required>
+                    </div>
+                </form>
+            </div>
+            <footer>
+                <button id="AddtmpSkill" class="w3-button w3-block w3-green w3-section w3-padding" onclick="submit()">OK
+                </button>
+            </footer>
+        </div>
+    </div>
+
+
+    <div id="imgUpload" class="w3-modal">
+        <div class="w3-modal-content">
+            <header class="w3-container w3-teal">
+                    <span onclick="document.getElementById('imgUpload').style.display='none'"
+                          class="w3-button w3-display-topright">&times;</span>
+                <h2>Выберите изображение</h2>
+            </header>
+            <div class="w3-container">
+                <form method="post" id = "imgUploader" class="w3-container" enctype="multipart/form-data" action="{{url_for('img')}}">
+                    <div class="w3-section">
+                        <input class="w3-input w3-border w3-margin-bottom" id='img' type="file" onchange="previewFile()"
+                               name="img" required><br>
+                        <img name="image" src="" height="200" alt="Image preview...">
+                        <input id="img_bin" type="hidden" name="image" value="">
+                        <input id="IMG_selector" type="hidden" name="selector" value="">
+                        <button id="addImage" class="w3-button w3-block w3-green w3-section w3-padding" type="submit">OK
+                        </button>
+
+
+                    </div>
+                </form>
+            </div>
+            <footer>
+
+            </footer>
+        </div>
+    </div>
+
+    <footer class="w3-bar" style="position: absolute; bottom: 0%">
+        <button class="w3-button w3-block w3-teal w3-bar-item w3-circle" onclick="fillSkill()" id="addL" style="">+</button>
+        <!-- <form class="" method="post"> -->
+        <button class="w3-button w3-block w3-bar-item w3-circle w3-blue fa fa-save" onclick="save()" name="save_button"
+                type="submit" value="submit"></button>
+        <!--</form> -->
+        <!--  <button class="w3-button w3-block w3-teal w3-bar-item" onclick="delLevel()" id="delL" style="width: 100%"> Закончить редактирование</button>
+    -->
+    </footer>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <!-- <script src="js/main.js"></script> -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    </body>
+</html>

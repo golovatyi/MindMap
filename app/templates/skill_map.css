@@ -1,0 +1,15 @@
+.skill_container {
+    /* margin: 3px;*/
+    border: 1px #86f709;
+    /*background-image: url("//background-color: rgba(120, 214, 47, 0.5);");*/
+    /*background-color: rgba(120, 214, 47, 0.5);*/
+    text-align: center;
+    background-size: contain;
+    border: 1px solid #DDDDDD;
+    padding: 0.5em;
+}
+
+.levelNumber {
+    text-align: center;
+}
+
